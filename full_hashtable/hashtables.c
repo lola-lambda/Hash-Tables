@@ -171,10 +171,21 @@ char *hash_table_retrieve(HashTable *ht, char *key)
 
   Don't forget to free any malloc'ed memory!
  */
-// void destroy_hash_table(HashTable *ht)
-// {
-
-// }
+void destroy_hash_table(HashTable *ht)
+{
+  LinkedPair *current_pair;
+  LinkedPair *previous_pair;
+  for (int i = 0; i < ht->capacity; i++) {
+    current_pair = ht->storage[i];
+    while (current_pair != NULL) {
+      previous_pair = current_pair->next;
+      destroy_pair(current_pair);
+      current_pair = previous_pair;
+    }
+  }
+  free(ht->storage);
+  free(ht);
+}
 
 /*
   Fill this in.
@@ -184,12 +195,20 @@ char *hash_table_retrieve(HashTable *ht, char *key)
 
   Don't forget to free any malloc'ed memory!
  */
-// HashTable *hash_table_resize(HashTable *ht)
-// {
-//   HashTable *new_ht;
-
-//   return new_ht;
-// }
+HashTable *hash_table_resize(HashTable *ht)
+{
+  HashTable *new_ht = create_hash_table(2 * ht->capacity);
+  LinkedPair * current_pair;
+  for (int i = 0; i < ht->capacity; i++) {
+    current_pair = ht->storage[i];
+    while (current_pair != NULL) {
+      hash_table_insert(new_ht, current_pair->key, current_pair->value);
+      current_pair = current_pair->next;
+    }
+  }  
+  destroy_hash_table(ht);
+  return new_ht;
+}
 
 
 #ifndef TESTING
@@ -201,17 +220,17 @@ int main(void)
   hash_table_insert(ht, "line_2", "Filled beyond capacity\n");
   hash_table_insert(ht, "line_3", "Linked list saves the day!\n");
 
-  // printf("%s", hash_table_retrieve(ht, "line_1"));
-  // printf("%s", hash_table_retrieve(ht, "line_2"));
-  // printf("%s", hash_table_retrieve(ht, "line_3"));
+  printf("%s", hash_table_retrieve(ht, "line_1"));
+  printf("%s", hash_table_retrieve(ht, "line_2"));
+  printf("%s", hash_table_retrieve(ht, "line_3"));
 
-  // int old_capacity = ht->capacity;
-  // ht = hash_table_resize(ht);
-  // int new_capacity = ht->capacity;
+  int old_capacity = ht->capacity;
+  ht = hash_table_resize(ht);
+  int new_capacity = ht->capacity;
 
-  // printf("\nResizing hash table from %d to %d.\n", old_capacity, new_capacity);
+  printf("\nResizing hash table from %d to %d.\n", old_capacity, new_capacity);
 
-  // destroy_hash_table(ht);
+  destroy_hash_table(ht);
 
   return 0;
 }
