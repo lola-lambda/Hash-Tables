@@ -103,8 +103,12 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
   unsigned int index = hash(key, ht->capacity);
-  ht->storage[index] = NULL;
-  destroy_pair(ht->storage[index]);
+  if (ht->storage[index] == NULL || strcmp(ht->storage[index]->key, key) != 0) {
+    fprintf(stderr, "Pair could not be removed");
+  } else {
+    destroy_pair(ht->storage[index]);
+    ht->storage[index] = NULL;
+  }
 }
 
 /****
